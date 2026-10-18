@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026 最后 100 天 · 倒数</title>
+<meta name="theme-color" content="#FAF9F6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="最后100天">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+:root{
+  --paper:#FAF9F6; --ink:#141414; --soft:#8A8A86; --line:#E4E2DC;
+  --pink:#86C8B1; --pink-deep:#5EA98F; --blue:#7FA9C4; --dot:#E9E7E1;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper) radial-gradient(circle,var(--dot) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","HarmonyOS Sans SC","MiSans","Noto Sans SC",sans-serif;
+  min-height:100dvh; padding:max(20px,env(safe-area-inset-top)) 22px 48px;
+  max-width:560px; margin:0 auto; position:relative;
+}
+.mono{font-family:"SF Mono",ui-monospace,"Courier New",monospace;font-variant-numeric:tabular-nums}
+/* 页眉 */
+header{display:flex;justify-content:space-between;align-items:baseline;padding:6px 2px 0}
+.brand{font-size:13px;font-weight:800;letter-spacing:.12em}
+.brand b{background:var(--ink);color:var(--paper);padding:2px 7px;border-radius:2px;margin-right:7px;font-weight:800}
+.today{font-size:12px;color:var(--blue);font-weight:600;letter-spacing:.06em}
+hr.rule{border:0;border-top:1.5px solid var(--ink);margin:16px 0 0}
+/* Hero */
+.kicker{margin-top:26px;font-size:13px;color:var(--soft);font-weight:600;letter-spacing:.2em}
+.hero{display:flex;align-items:baseline;gap:14px;margin-top:2px}
+.big{font-size:clamp(96px,30vw,150px);font-weight:900;letter-spacing:-.04em;line-height:1}
+.unit{font-size:20px;font-weight:800;padding-bottom:14px}
+.sub{display:flex;gap:22px;margin-top:10px;font-weight:700}
+.sub .cell{display:flex;align-items:baseline;gap:7px}
+.sub .n{font-size:34px;font-weight:900;letter-spacing:-.02em}
+.sub .u{font-size:13px;color:var(--soft);font-weight:700}
+/* 人性化计数 */
+ul.rows{list-style:none;margin-top:26px;border-top:1.5px solid var(--ink)}
+ul.rows li{display:flex;justify-content:space-between;align-items:baseline;padding:11px 2px;border-bottom:1px solid var(--line);font-size:14.5px;font-weight:600;color:#3A3A38}
+ul.rows li .v{font-size:19px;font-weight:900;color:var(--ink)}
+ul.rows li .v small{font-size:12.5px;color:var(--soft);font-weight:700;margin-left:4px}
+/* 格子墙 */
+.wall-h{display:flex;justify-content:space-between;align-items:baseline;margin-top:30px}
+.wall-h h2{font-size:15px;font-weight:800;letter-spacing:.05em}
+.wall-h .c{font-size:12px;color:var(--soft);font-weight:700}
+.wall{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin-top:12px}
+.dot-cell{aspect-ratio:1;border-radius:50%;border:1.5px solid #D8D5CE;background:transparent;cursor:pointer;position:relative;transition:transform .12s}
+.dot-cell.lit{background:var(--pink);border-color:var(--pink)}
+.dot-cell.now{border:2px solid var(--ink);background:var(--pink);opacity:.45}
+.dot-cell:active{transform:scale(1.25)}
+.wall-tip{margin-top:10px;font-size:12.5px;color:var(--soft);font-weight:600;min-height:18px}
+.wall-tip b{color:var(--pink-deep)}
+.legend{display:flex;gap:16px;margin-top:8px;font-size:11.5px;color:var(--soft);font-weight:600}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:5px}
+.legend .a i{background:var(--pink)} .legend .b i{border:1.5px solid var(--ink);background:rgba(134,200,177,.45)} .legend .c i{border:1.5px solid #D8D5CE}
+/* 愿望 */
+.wish{margin-top:34px;border-top:1.5px solid var(--ink);padding-top:18px}
+.wish h2{font-size:15px;font-weight:800;letter-spacing:.05em}
+.wish p.d{font-size:12.5px;color:var(--soft);font-weight:600;margin-top:4px}
+.btn{display:inline-block;background:var(--ink);color:var(--paper);border:0;font:inherit;font-size:13.5px;font-weight:700;letter-spacing:.08em;padding:11px 22px;border-radius:999px;cursor:pointer;margin-top:14px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+textarea{width:100%;min-height:96px;margin-top:14px;border:1.5px solid var(--ink);border-radius:4px;background:transparent;padding:12px;font:inherit;font-size:14.5px;line-height:1.6;resize:vertical}
+textarea:focus{outline:none;box-shadow:0 0 0 2px var(--pink)}
+.wish-card{margin-top:14px;border:1.5px solid var(--ink);border-radius:4px;padding:14px;background:rgba(255,255,255,.6)}
+.wish-card .t{font-size:11.5px;color:var(--blue);font-weight:700;letter-spacing:.08em;margin-bottom:6px}
+.wish-card .w{font-size:14.5px;line-height:1.7;white-space:pre-wrap}
+.wish-card .m{font-size:11.5px;color:var(--soft);margin-top:8px;font-weight:600}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:var(--paper);font-size:13px;font-weight:700;padding:10px 18px;border-radius:999px;opacity:0;transition:.3s;z-index:50;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{margin-top:38px;text-align:center;font-size:11.5px;color:var(--soft);font-weight:600;letter-spacing:.1em}
+/* 跨年层 */
+#party{position:fixed;inset:0;background:rgba(250,249,246,.97);z-index:90;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
+#party.on{display:flex}
+#party .yr{font-size:clamp(80px,26vw,140px);font-weight:900;letter-spacing:-.04em;line-height:1}
+#party .msg{font-size:15px;font-weight:700;margin-top:14px;color:#3A3A38}
+#party .btn{margin-top:22px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:95;display:none}
+#confetti i{position:absolute;top:-12px;width:8px;height:13px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(660deg);opacity:.7}}
+.y27{margin-top:26px;border-top:1.5px solid var(--ink);padding-top:16px}
+.y27 .n{font-size:44px;font-weight:900;letter-spacing:-.02em}
+@media(max-width:400px){.sub{gap:14px}.sub .n{font-size:29px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>倒</b>倒数 · 最后 100 天</div>
+  <div class="today" id="todayLine"></div>
+</header>
+<hr class="rule">
+
+<section id="cd">
+  <div class="kicker">2026 · 最后 100 天</div>
+  <div class="hero"><div class="big" id="dDays">--</div><div class="unit">天</div></div>
+  <div class="sub">
+    <div class="cell"><span class="n mono" id="dH">--</span><span class="u">时</span></div>
+    <div class="cell"><span class="n mono" id="dM">--</span><span class="u">分</span></div>
+    <div class="cell"><span class="n mono" id="dS">--</span><span class="u">秒</span></div>
+  </div>
+
+  <ul class="rows">
+    <li><span>星期五还剩</span><span class="v" id="cFri">-<small>个</small></span></li>
+    <li><span>周六还剩</span><span class="v" id="cSat">-<small>个</small></span></li>
+    <li><span>深夜还剩</span><span class="v" id="cNight">-<small>个</small></span></li>
+  </ul>
+
+  <div class="wall-h"><h2>100 天 · 一步一格</h2><span class="c mono" id="wallCount"></span></div>
+  <div class="wall" id="wall"></div>
+  <div class="legend"><span class="a"><i></i>已经走过</span><span class="b"><i></i>今天进行中</span><span class="c"><i></i>还没来</span></div>
+  <div class="wall-tip" id="wallTip">点一颗，看看那是哪一天。</div>
+
+  <div class="wish">
+    <h2>写给 2027</h2>
+    <p class="d" id="wishDesc">现在写下想带进新年的话。2027 年 1 月 1 日零点，它自动启封。</p>
+    <div id="wishBox"></div>
+  </div>
+</section>
+
+<section id="in27" style="display:none">
+  <div class="kicker">2027 已来</div>
+  <div class="hero"><div class="big" id="y27n">1</div><div class="unit">2027 的第</div></div>
+  <div class="unit" style="padding:0 0 6px" id="y27t"></div>
+  <div class="y27" id="y27wish"></div>
+</section>
+
+<footer>2026.09.23 — 12.31 · 一年最后的 100 天</footer>
+
+<div class="toast" id="toast"></div>
+<div id="party"><div class="yr">2027</div><div class="msg" id="partyMsg">到了。</div><button class="btn" id="partyOk">收下这一年</button></div>
+<canvas id="confetti"></canvas>
+
+<script>
+(function(){
+'use strict';
+var TARGET=new Date(2027,0,1,0,0,0);
+var Y_END=new Date(2028,0,1,0,0,0);
+var $=function(id){return document.getElementById(id)};
+var S=null;try{S=window.localStorage}catch(e){}
+function get(k,d){if(!S)return d;try{var v=S.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function set(k,v){if(S)try{S.setItem(k,JSON.stringify(v))}catch(e){}}
+var dkey=function(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+var WD=['日','一','二','三','四','五','六'];
+var lastDay=null,partyDone=get('cd27.party',false),celebratedThisOpen=false;
+
+function pad(n){return (n<10?'0':'')+n}
+function fmt(ms){return Math.max(0,Math.floor(ms/1000))}
+
+function tick(){
+  var now=new Date();
+  /* 跨零点翻页 */
+  var dk=dkey(now);
+  if(lastDay!==null&&dk!==lastDay){buildWall();buildCounts()}
+  lastDay=dk;
+  if(now>=Y_END){archive();return}
+  if(now>=TARGET){mode2027(now);return}
+  var ms=TARGET-now,s=fmt(ms);
+  $('dDays').textContent=Math.floor(s/86400);
+  $('dH').textContent=pad(Math.floor(s%86400/3600));
+  $('dM').textContent=pad(Math.floor(s%3600/60));
+  $('dS').textContent=pad(s%60);
+}
+function dayLeft(from){var a=new Date(from.getFullYear(),from.getMonth(),from.getDate());return Math.round((TARGET-a)/86400000)}
+
+function buildCounts(){
+  var t=new Date();var a=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+  var end=new Date(2026,11,31);
+  var fri=0,sat=0,n=0;
+  for(var d=new Date(a);d<=end;d.setDate(d.getDate()+1)){
+    n++;var w=d.getDay();if(w===5)fri++;if(w===6)sat++;
+  }
+  $('cFri').innerHTML=fri+'<small>个</small>';
+  $('cSat').innerHTML=sat+'<small>个</small>';
+  $('cNight').innerHTML=n+'<small>个</small>';
+  $('todayLine').textContent=(t.getMonth()+1)+'月'+t.getDate()+'日 · 星期'+WD[t.getDay()];
+}
+
+function dayN(){
+  var t=new Date();var s=new Date(2026,8,23);
+  return Math.max(1,Math.min(100,Math.round((new Date(t.getFullYear(),t.getMonth(),t.getDate())-s)/86400000)+1));
+}
+
+function buildWall(){
+  var t=new Date();var a=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+  var start=new Date(2026,8,23);
+  var end=new Date(2026,11,31);
+  var wall=$('wall');wall.innerHTML='';var idx=0;
+  for(var d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    idx++;
+    var c=document.createElement('div');c.className='dot-cell';
+    var isToday=d.getTime()===a.getTime();
+    if(d<a)c.className+=' lit';
+    if(isToday)c.className+=' now';
+    (function(dd,n){
+      c.addEventListener('click',function(){
+        var rest=dayLeft(dd)-1;
+        $('wallTip').innerHTML='第 <b>'+n+'</b> 天 · '+(dd.getMonth()+1)+'月'+dd.getDate()+'日 · 星期'+WD[dd.getDay()]+
+          (n===dayN()?' · <b>今天</b>':'')+' · '+(rest===0?'<b>明天就是 2027</b>':'离 2027 还剩 <b>'+rest+'</b> 天');
+      });
+    })(new Date(d.getTime()),idx);
+    wall.appendChild(c);
+  }
+  $('wallCount').textContent='第 '+dayN()+' / 100 天';
+}
+
+/* ── 愿望 ── */
+function wishGet(){return get('cd27.wish',null)}
+function renderWish(){
+  var w=wishGet(),box=$('wishBox');
+  var y27=new Date()>=TARGET;
+  if(w){
+    var d=new Date(w.at);
+    box.innerHTML='<div class="wish-card"><div class="t">'+(y27?'✦ 已启封':'✦ 已封存')+'</div>'+
+      '<div class="w">'+esc(w.text)+'</div>'+
+      '<div class="m">来自 '+(d.getFullYear())+'.'+(d.getMonth()+1)+'.'+(d.getDate())+' 的你'+(y27?' · 2027 收到了':' · 2027.01.01 启封')+'</div></div>'+
+      '<button class="btn ghost" id="wishEdit">'+(y27?'再写一句':'改写')+'</button>';
+    $('wishEdit').onclick=function(){wishForm(w?w.text:'')};
+  }else{
+    wishForm('');
+  }
+}
+function wishForm(pre){
+  var box=$('wishBox');
+  box.innerHTML='<textarea id="wishTa" placeholder="2027 的我，你好——" maxlength="300">'+esc(pre||'')+'</textarea>'+
+    '<button class="btn" id="wishSave">封存给 2027</button>';
+  $('wishSave').onclick=function(){
+    var t=$('wishTa').value.trim();
+    if(!t){toast('写点什么吧，哪怕是三个字');return}
+    set('cd27.wish',{text:t,at:Date.now()});
+    renderWish();toast('封好了 · 2027 见');
+  };
+}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+/* ── 2027 模式 ── */
+function mode2027(now){
+  $('cd').style.display='none';
+  $('in27').style.display='block';
+  var day=Math.floor((now-TARGET)/86400000)+1;
+  $('y27n').textContent=day;
+  var yend=new Date(2027,11,31);
+  var leftY=Math.round((yend-now)/86400000)+1;
+  $('y27t').textContent='2028 还在 '+leftY+' 天之外 · 慢慢走';
+  var w=wishGet();
+  $('y27wish').innerHTML=w?'<div class="wish-card"><div class="t">✦ 从 2026 带来的</div><div class="w">'+esc(w.text)+'</div><div class="m">来自 '+new Date(w.at).getFullYear()+'.'+(new Date(w.at).getMonth()+1)+'.'+(new Date(w.at).getDate())+' 的你</div></div>':'<p class="d">2026 的你没有留下话。今年想对自己说什么，现在写下也不晚。</p>';
+  if(!partyDone){partyDone=true;set('cd27.party',true);openParty()}
+}
+function archive(){
+  $('cd').style.display='none';$('in27').style.display='block';
+  $('y27n').textContent='·';$('y27t').textContent='2027 已经成为过去。那些愿望还在，往回翻翻。';
+}
+function openParty(){
+  $('party').classList.add('on');
+  $('partyMsg').textContent='2026 的余额用完了。'+(wishGet()?'你带进来的话，已经写在下面。':'新的一年，开始了。');
+  confetti();
+}
+$('partyOk').onclick=function(){$('party').classList.remove('on')};
+
+/* ── confetti ── */
+function confetti(){
+  var cv=$('confetti'),ctx=cv.getContext('2d');
+  cv.style.display='block';cv.width=innerWidth;cv.height=innerHeight;
+  var cols=['#86C8B1','#7FA9C4','#141414','#F2C94C','#F2994A'];
+  var ps=[];for(var i=0;i<140;i++)ps.push({x:Math.random()*cv.width,y:-20-Math.random()*cv.height*.5,w:5+Math.random()*6,h:8+Math.random()*8,c:cols[i%5],vy:2+Math.random()*3.5,vx:(Math.random()-.5)*1.6,r:Math.random()*Math.PI,vr:(Math.random()-.5)*.2});
+  var t0=Date.now();
+  (function draw(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ps.forEach(function(p){p.y+=p.vy;p.x+=p.vx;p.r+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore()});
+    if(Date.now()-t0<6000&&ps.some(function(p){return p.y<cv.height+30}))requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,cv.width,cv.height);cv.style.display='none'}
+  })();
+}
+
+/* ── toast ── */
+var toastT=null;
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(function(){t.classList.remove('on')},2200)}
+
+buildWall();buildCounts();renderWish();tick();
+setInterval(tick,1000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)tick()});
+})();
+</script>
+</body>
+</html>
